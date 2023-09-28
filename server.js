@@ -38,9 +38,7 @@ app.get('/categories', (req, res) => {
     .catch((err) => {return {message: err}});
 })
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, "/public/images/starwars-movealong.gif", () => {
-        res.sendFile(path.join(__dirname, "/views/error404.html"));
-    }));
+    res.sendFile(path.join(__dirname, "/views/error404.html"));
 })
 
 try{
