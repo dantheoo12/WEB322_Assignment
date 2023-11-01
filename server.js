@@ -124,8 +124,8 @@ app.get('/posts/:value', (req, res) => {
     .catch((err) => {return {message: err}});
 })
 app.get('/categories', (req, res) => {
-    blog_service.getCategories().then((data) => {res.send(data)})
-    .catch((err) => {return {message: err}});
+    blog_service.getCategories().then((data) => {res.render('categories', {categories:data})})
+    .catch((err) => res.render('categories', {message:err}));
 })
 app.get('/posts/add', (req, res) => {
     res.sendFile(path.join(__dirname, "/views/addPost.html"));
