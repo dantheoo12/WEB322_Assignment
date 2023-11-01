@@ -9,7 +9,6 @@
 *
 ********************************************************************************/ 
 
-
 const express = require('express');
 const path = require("path");
 const app = express();
@@ -68,7 +67,7 @@ app.set('view engine', 'hbs');
 
 // app routes
 app.get('/', (req, res) => {
-    res.redirect("/about")
+    res.redirect("/blog")
 });
 app.get('/about', (req, res) => {
     res.render('about');
@@ -226,7 +225,7 @@ app.get('/posts/add', (req, res) => {
     res.sendFile(path.join(__dirname, "/views/addPost.html"));
 })
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, "/views/error404.html"));
+    res.render('error404');
 })
 
 // start server if initialize is successful
