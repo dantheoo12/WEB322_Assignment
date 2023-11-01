@@ -118,10 +118,11 @@ module.exports.getPostsByMinDate = (minDateStr) => {
 
 module.exports.getPostById = (id) => {
     return new Promise((resolve, reject) => {
-        const post = posts.find(post => post.id === id)
+        const post = posts.find(post => post.id == id)
         if (post) resolve(post);
         else reject(`No post found with id: ${id}`);
-    })
+        }
+    )
 }
 
 module.exports.getPublishedPostsByCategory = (category) => {
