@@ -77,16 +77,16 @@ app.get('/posts', (req, res) => {
     const category = req.query.category;
     const minDate = req.query.minDate;
     if (category) {
-        blog_service.getPostsByCategory(Number(category)).then((data) => res.send(data))
-        .catch((err) => {return {message: err}});
+        blog_service.getPostsByCategory(Number(category)).then((data) => res.render("posts", {posts: data}))
+        .catch((err) => res.render("posts", {message: err}));
     }
     else if (minDate) {
-        blog_service.getPostsByMinDate(minDate).then((data) => res.send(data))
-        .catch((err) => {return {message: err}});
+        blog_service.getPostsByMinDate(minDate).then((data) => res.render("posts", {posts: data}))
+        .catch((err) => res.render("posts", {message: err}));
     }
     else {
-        blog_service.getAllPosts().then((data) => res.send(data))
-        .catch((err) => {return {message: err}});
+        blog_service.getAllPosts().then((data) => res.render("posts", {posts: data}))
+        .catch((err) => res.render("posts", {message: err}));
     }
 })
 app.get('/posts/add', (req, res) => {
