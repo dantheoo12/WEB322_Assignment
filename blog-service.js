@@ -123,3 +123,15 @@ module.exports.getPostById = (id) => {
         else reject(`No post found with id: ${id}`);
     })
 }
+
+module.exports.getPublishedPostsByCategory = (category) => {
+    return new Promise ((resolve, reject) => {
+        let publishedPosts = posts.filter(post => post.published == true & post.category == category);
+        if (publishedPosts.length > 0) {
+            resolve(publishedPosts);
+        }
+        else {
+            reject("No published posts in that category returned");
+        }
+    })
+}

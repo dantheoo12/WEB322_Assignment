@@ -19,6 +19,7 @@ const streamifier = require("streamifier");
 const blog_service = require("./blog-service");
 const upload = multer();
 const exphbs = require('express-handlebars');
+const stripJs = require('strip-js');
 
 // set port
 const HTTP_PORT = process.env.PORT || 8080;
@@ -46,19 +47,22 @@ app.engine('.hbs', exphbs.engine({
     extname:'.hbs', 
     helpers: {
         navLink: function(url, options) {
-        return '<li' + 
-            ((url == app.locals.activeRoute) ? ' class="active" ' : '') + 
-            '><a href="' + url + '">' + options.fn(this) + '</a></li>';
+            return '<li' + 
+                ((url == app.locals.activeRoute) ? ' class="active" ' : '') + 
+                '><a href="' + url + '">' + options.fn(this) + '</a></li>';
         },
         equal: function(lvalue, rvalue, options) {
-        if (arguments.length < 3)
-            throw new Error("Handlebars Helper equal needs 2 parameters");
-        if (lvalue != rvalue) {
-            return options.inverse(this);
-        } else {
-            return options.fn(this);
-        }
-        }
+            if (arguments.length < 3)
+                throw new Error("Handlebars Helper equal needs 2 parameters");
+            if (lvalue != rvalue) {
+                return options.inverse(this);
+            } else {
+                return options.fn(this);
+            }
+        },
+        safeHTML: function(context){
+            return stripJs(context);
+        }        
     }}));
 app.set('view engine', 'hbs');
 
@@ -69,10 +73,52 @@ app.get('/', (req, res) => {
 app.get('/about', (req, res) => {
     res.render('about');
 })
-app.get('/blog', (req, res) => {
-    blog_service.getPublishedPosts().then((data) => {res.send(data)})
-    .catch((err) => {return {message: err}});
-})
+app.get('/blog', async (req, res) => {
+    // Declare an object to store properties for the view
+    let viewData = {};
+
+    try{
+
+        // declare empty array to hold "post" objects
+        let posts = [];
+
+        // if there's a "category" query, filter the returned posts by category
+        if(req.query.category){
+            // Obtain the published "posts" by category
+            posts = await blog_service.getPublishedPostsByCategory(req.query.category);
+        }else{
+            // Obtain the published "posts"
+            posts = await blog_service.getPublishedPosts();
+        }
+
+        // sort the published posts by postDate
+        posts.sort((a,b) => new Date(b.postDate) - new Date(a.postDate));
+
+        // get the latest post from the front of the list (element 0)
+        let post = posts[0]; 
+
+        // store the "posts" and "post" data in the viewData object (to be passed to the view)
+        viewData.posts = posts;
+        viewData.post = post;
+
+    }catch(err){
+        viewData.message = "no results";
+    }
+
+    try{
+        // Obtain the full list of "categories"
+        let categories = await blogData.getCategories();
+
+        // store the "categories" data in the viewData object (to be passed to the view)
+        viewData.categories = categories;
+    }catch(err){
+        viewData.categoriesMessage = "no results"
+    }
+
+    // render the "blog" view with all of the data (viewData)
+    res.render("blog", {data: viewData})
+
+});
 app.get('/posts', (req, res) => {
     const category = req.query.category;
     const minDate = req.query.minDate;
