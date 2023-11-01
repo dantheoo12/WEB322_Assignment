@@ -18,7 +18,9 @@ const cloudinary = require("cloudinary").v2;
 const streamifier = require("streamifier");
 const blog_service = require("./blog-service");
 const upload = multer();
+const exphbs = require('express-handlebars');
 
+// set port
 const HTTP_PORT = process.env.PORT || 8080;
 
 cloudinary.config({
@@ -28,16 +30,44 @@ cloudinary.config({
     secure: true
 });
 
-
+// middleware
 app.use(express.static("public"));
 app.use(upload.single("featureImage"));
+app.use(function(req,res,next){
+    let route = req.path.substring(1);
+    app.locals.activeRoute = "/" + (isNaN(route.split('/')[1]) ? route.replace(/\/(?!.*)/, "") : route.replace(/\/(.*)/, ""));
+    app.locals.viewingCategory = req.query.category;
+    next();
+});
 
 
+// add handlebars engines and helpers
+app.engine('.hbs', exphbs.engine({
+    extname:'.hbs', 
+    helpers: {
+        navLink: function(url, options) {
+        return '<li' + 
+            ((url == app.locals.activeRoute) ? ' class="active" ' : '') + 
+            '><a href="' + url + '">' + options.fn(this) + '</a></li>';
+        },
+        equal: function(lvalue, rvalue, options) {
+        if (arguments.length < 3)
+            throw new Error("Handlebars Helper equal needs 2 parameters");
+        if (lvalue != rvalue) {
+            return options.inverse(this);
+        } else {
+            return options.fn(this);
+        }
+        }
+    }}));
+app.set('view engine', 'hbs');
+
+// app routes
 app.get('/', (req, res) => {
     res.redirect("/about")
 });
 app.get('/about', (req, res) => {
-    res.sendFile(path.join(__dirname, "/views/about.html"))
+    res.render('about');
 })
 app.get('/blog', (req, res) => {
     blog_service.getPublishedPosts().then((data) => {res.send(data)})
@@ -60,7 +90,7 @@ app.get('/posts', (req, res) => {
     }
 })
 app.get('/posts/add', (req, res) => {
-    res.sendFile(path.join(__dirname, "/views/addPost.html"))
+    res.render('addPost');
 })
 app.post('/posts/add', (req, res) => {
     let streamUpload = (req) => {
