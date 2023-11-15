@@ -72,7 +72,7 @@ module.exports.getPostsByMinDate = (minDateStr) => {
 module.exports.getPostById = (id) => {
     return new Promise((resolve, reject) => {
         reject();
-    )
+    })
 }
 
 module.exports.getPublishedPostsByCategory = (category) => {
