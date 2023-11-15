@@ -1,138 +1,82 @@
-const fs = require('fs');
+const sequelize = require('sequelize');
 
-var posts = [];
-var categories = [];
+// connect to Postgres database
+var sequelize = new Sequelize('WEB322', 'dantheoo12', 'wuekanlQt40V', {
+    host: 'ep-wandering-mountain-36097825.us-east-2.aws.neon.tech',
+    dialect: 'postgres',
+    port: 5432,
+    dialectOptions: {
+        ssl: { rejectUnauthorized: false }
+    },
+    query: { raw: true }
+});
+
+// initialize data models
+const Post = sequelize.define('Post', {
+    body: sequelize.TEXT,
+    title: sequelize.STRING,
+    postDate: sequelize.DATE,
+    featureImage: sequelize.STRING,
+    published: sequelize.BOOLEAN
+})
+
+const Category = sequelize.define('Category', {
+    category: sequelize.STRING
+})
+
+Post.belongsTo(Category, {foreignKey: 'category'}); // define relationship
 
 module.exports.initialize = () => {
     return new Promise(async function(resolve, reject) {
-        try {
-            await readPosts();
-            await readCategories();
-            resolve();
-        }
-        catch {
-            reject("Error reading files");
-        }
-    })
-}
-function readPosts() {
-    return new Promise ((resolve, reject) => {
-        fs.readFile('data/posts.json', 'utf-8', (error, data) => {
-            let postData = JSON.parse(data);
-            posts = postData;
-            resolve();
-        })
-    })
-}
-function readCategories() {
-    return new Promise ((resolve, reject) => {
-        fs.readFile('data/categories.json', 'utf-8', (error, data) => {
-            let categoryData = JSON.parse(data);
-            categories = categoryData;
-            resolve();
-        })
+        reject();
     })
 }
 
+
 module.exports.getAllPosts = () => {
     return new Promise((resolve, reject) => {
-        if (posts.length > 0) {
-            resolve(posts);
-        }
-        else {
-            reject("No posts returned");
-        }
+        reject();
     })
 }
 
 module.exports.getPublishedPosts = () => {
     return new Promise ((resolve, reject) => {
-        let publishedPosts = posts.filter(post => post.published == true);
-        if (publishedPosts.length > 0) {
-            resolve(publishedPosts);
-        }
-        else {
-            reject("No published posts returned");
-        }
+        reject();
     })
 }
 
 module.exports.getCategories = () => {
     return new Promise ((resolve, reject) => {
-        if (categories.length > 0) {
-            resolve(categories);
-        }
-        else {
-            reject("No categories returned");
-        }
+        reject();
     })
 }
 
 module.exports.addPost = (postData) => {
     return new Promise((resolve, reject) => {
-        let newPost = {};
-        // assign id
-        newPost.id = posts.length + 1;
-        // store body
-        newPost.body = postData.body;
-        // store title
-        newPost.title = postData.title;
-        // assign postDate
-        const currentDate = new Date();
-        const formattedDate = currentDate.toISOString().slice(0, 10);
-        newPost.postDate = formattedDate;
-        // assign category
-        newPost.category = Number(postData.category);
-        // add featureImage
-        newPost.featureImage = postData.featureImage;
-        // assign published
-        postData.published ? newPost.published = true : newPost.published = false;
-        posts.push(newPost);
-        resolve(newPost);
+        reject();
     })
 }
 
 module.exports.getPostsByCategory = (category) => {
     return new Promise ((resolve, reject) => {
-        let postsInCategory = posts.filter((post) => post.category == category);
-        if (postsInCategory.length > 0) {
-            resolve(postsInCategory);
-        }
-        else {
-            reject("No posts in that category");
-        }
+        reject();
     })
 }
 
 module.exports.getPostsByMinDate = (minDateStr) => {
     return new Promise ((resolve, reject) => {
-        let postsPastDate = posts.filter((post) => new Date(post.postDate) >= new Date(minDateStr));
-        if (postsPastDate.length > 0) {
-            resolve(postsPastDate);
-        }
-        else {
-            reject(`No posts past ${minDateStr}`);
-        }
+        reject();
     })
 }
 
 module.exports.getPostById = (id) => {
     return new Promise((resolve, reject) => {
-        const post = posts.find(post => post.id == id)
-        if (post) resolve(post);
-        else reject(`No post found with id: ${id}`);
-        }
+        reject();
     )
 }
 
 module.exports.getPublishedPostsByCategory = (category) => {
     return new Promise ((resolve, reject) => {
-        let publishedPosts = posts.filter(post => post.published == true & post.category == category);
-        if (publishedPosts.length > 0) {
-            resolve(publishedPosts);
-        }
-        else {
-            reject("No published posts in that category returned");
-        }
+        reject();
     })
 }
