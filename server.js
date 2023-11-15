@@ -177,15 +177,24 @@ app.get('/posts', (req, res) => {
     const category = req.query.category;
     const minDate = req.query.minDate;
     if (category) {
-        blog_service.getPostsByCategory(Number(category)).then((data) => res.render("posts", {posts: data}))
+        blog_service.getPostsByCategory(Number(category)).then((data) => {
+            if (data.length > 0) res.render("posts", {posts: data});
+            else res.render("posts", {message: "No post results"});
+        })
         .catch((err) => res.render("posts", {message: err}));
     }
     else if (minDate) {
-        blog_service.getPostsByMinDate(minDate).then((data) => res.render("posts", {posts: data}))
+        blog_service.getPostsByMinDate(minDate).then((data) => {
+            if (data.length > 0) res.render("posts", {posts: data});
+            else res.render("posts", {message: "No post results"});
+        })
         .catch((err) => res.render("posts", {message: err}));
     }
     else {
-        blog_service.getAllPosts().then((data) => res.render("posts", {posts: data}))
+        blog_service.getAllPosts().then((data) => {
+            if (data.length > 0) res.render("posts", {posts: data});
+            else res.render("posts", {message: "No post results"});
+        })
         .catch((err) => res.render("posts", {message: err}));
     }
 })
@@ -224,7 +233,10 @@ app.get('/posts/:value', (req, res) => {
     .catch((err) => {return {message: err}});
 })
 app.get('/categories', (req, res) => {
-    blog_service.getCategories().then((data) => {res.render('categories', {categories:data})})
+    blog_service.getCategories().then((data) => {
+        if (data.length > 0) res.render('categories', {categories:data});
+        else res.render('categories', {message: 'No category results found'});
+    })
     .catch((err) => res.render('categories', {message:err}));
 })
 app.get('/posts/add', (req, res) => {

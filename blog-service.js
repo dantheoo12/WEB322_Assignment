@@ -125,3 +125,40 @@ module.exports.getPublishedPostsByCategory = (selectedCategory) => {
         .catch(() => reject('No post results found'));
     })
 }
+
+module.exports.addCategory = (categoryData) => {
+    return new Promise((resolve, reject) => {
+        for (attribute in postData) {
+            if (attribute === "") categoryData.attribute = null;
+        }
+        Category.create({
+            category: categoryData.category
+        })
+        .then((newCategory) => resolve(newCategory))
+        .catch(() => reject('Unable to create category'));
+    })
+}
+
+module.exports.deleteCategoryById = (id) => {
+    return new Promise((resolve, reject) => {
+        Category.destroy({
+            where: {
+                id: id
+            }
+        })
+        .then(() => resolve())
+        .catch(() => reject('Error, category not deleted'));
+    })
+}
+
+module.exports.deletePostById = (id) => {
+    return new Promise((resolve, reject) => {
+        Post.destroy({
+            where: {
+                id: id
+            }
+        })
+        .then(() => resolve())
+        .catch(() => reject('Error, post not deleted'));
+    })
+}
