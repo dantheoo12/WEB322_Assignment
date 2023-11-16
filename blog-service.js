@@ -67,7 +67,7 @@ module.exports.getPublishedPosts = () => {
 
 module.exports.getPostsByMinDate = (minDateStr) => {
     return new Promise ((resolve, reject) => {
-        const { gte } = sequelize.Op;
+        const { gte } = Sequelize.Op;
         Post.findAll({
             where: {
                 postDate: {
