@@ -23,6 +23,7 @@ const stripJs = require('strip-js');
 // set port
 const HTTP_PORT = process.env.PORT || 8080;
 
+// cloudinary config data
 cloudinary.config({
     cloud_name: 'dltw8gfwe',
     api_key: '667857881175663',
@@ -79,14 +80,13 @@ app.get('/', (req, res) => {
 
 app.get('/about', (req, res) => {
     res.render('about');
-})
+});
 
 app.get('/blog', async (req, res) => {
     // Declare an object to store properties for the view
     let viewData = {};
 
     try{
-
         // declare empty array to hold "post" objects
         let posts = [];
 
@@ -202,13 +202,13 @@ app.get('/posts', (req, res) => {
         })
         .catch((err) => res.render("posts", {message: err}));
     }
-})
+});
 
 app.get('/posts/add', (req, res) => {
     blog_service.getCategories()
     .then((data) => res.render('addPost', {categories: data}))
     .catch(() => res.render('addPost', {categories: []}));
-})
+});
 
 app.post('/posts/add', (req, res) => {
     let streamUpload = (req) => {
@@ -236,12 +236,12 @@ app.post('/posts/add', (req, res) => {
         .then(() => {
             console.log("New post added")
             res.redirect('/posts')}); // redirect to posts
-})})
+})});
 
 app.get('/posts/:value', (req, res) => {
     blog_service.getPostById(Number(req.params.value)).then((data) => res.send(data))
     .catch((err) => {return {message: err}});
-})
+});
 
 app.get('/categories', (req, res) => {
     blog_service.getCategories().then((data) => {
@@ -249,18 +249,18 @@ app.get('/categories', (req, res) => {
         else res.render('categories', {message: 'No category results found'});
     })
     .catch((err) => res.render('categories', {message:err}));
-})
+});
 
 app.get('/categories/add', (req, res) => {
     res.render('addCategory');
-})
+});
 
 app.post('/categories/add', (req, res) => {
     blog_service.addCategory(req.body)
     .then(() => {
         console.log("New category added")
         res.redirect('/categories')}); // redirect to posts
-})
+});
 
 app.get('/categories/delete/:id', (req, res) => {
     blog_service.deleteCategoryById(req.params.id)
@@ -268,7 +268,7 @@ app.get('/categories/delete/:id', (req, res) => {
         res.redirect('/categories')
     })
     .catch(() => res.status(500, "Unable to Remove Category / Category not found"))
-})
+});
 
 app.get('/posts/delete/:id', (req, res) => {
     blog_service.deletePostById(req.params.id)
@@ -276,11 +276,11 @@ app.get('/posts/delete/:id', (req, res) => {
         res.redirect('/posts')
     })
     .catch(() => res.status(500, "Unable to Remove post / Post not found"))
-})
+});
 
 app.get('*', (req, res) => {
     res.render('error404');
-})
+});
 
 // start server if initialize is successful
 try{
@@ -290,4 +290,4 @@ try{
 }
 catch {
     throw new Error("Could not initialize data set");
-}
+};

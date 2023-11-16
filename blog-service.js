@@ -18,11 +18,11 @@ const Post = sequelize.define('Post', {
     postDate: Sequelize.DATE,
     featureImage: Sequelize.STRING,
     published: Sequelize.BOOLEAN
-})
+});
 
 const Category = sequelize.define('Category', {
     category: Sequelize.STRING
-})
+});
 
 Post.belongsTo(Category, {foreignKey: 'category'}); // define relationship
 
@@ -32,14 +32,14 @@ module.exports.initialize = () => {
         .then(() => resolve())
         .catch(() => reject('Unable to sync to database'))
     })
-}
+};
 
 module.exports.getAllPosts = () => {
     return new Promise((resolve, reject) => {
         Post.findAll().then((allPosts) => resolve(allPosts))
         .catch(() => reject('No post results found'));
     })
-}
+};
 
 module.exports.getPostsByCategory = (selectedCategory) => {
     return new Promise ((resolve, reject) => {
@@ -51,7 +51,7 @@ module.exports.getPostsByCategory = (selectedCategory) => {
         .then((foundPosts) => resolve(foundPosts))
         .catch(() => reject('No post results found'));
     })
-}
+};
 
 module.exports.getPublishedPosts = () => {
     return new Promise ((resolve, reject) => {
@@ -63,7 +63,7 @@ module.exports.getPublishedPosts = () => {
         .then((foundPosts) => resolve(foundPosts))
         .catch(() => reject('No post results found'));
     })
-}
+};
 
 module.exports.getPostsByMinDate = (minDateStr) => {
     return new Promise ((resolve, reject) => {
@@ -77,7 +77,7 @@ module.exports.getPostsByMinDate = (minDateStr) => {
         .then((foundPosts) => resolve(foundPosts))
         .catch(() => reject('No post results found'));
     })
-}
+};
 
 module.exports.getPostById = (id) => {
     return new Promise((resolve, reject) => {
@@ -91,14 +91,14 @@ module.exports.getPostById = (id) => {
         })
         .catch(() => reject('No post results found'));
     })
-}
+};
 
 module.exports.getCategories = () => {
     return new Promise((resolve, reject) => {
         Category.findAll().then((allCategories) => resolve(allCategories))
         .catch(() => reject('No category results found'));
     })
-}
+};
 
 module.exports.addPost = (postData) => {
     return new Promise((resolve, reject) => {
@@ -118,7 +118,7 @@ module.exports.addPost = (postData) => {
         })
         .catch(() => reject('Unable to create post'));
     })
-}
+};
 
 module.exports.getPublishedPostsByCategory = (selectedCategory) => {
     return new Promise ((resolve, reject) => {
@@ -131,7 +131,7 @@ module.exports.getPublishedPostsByCategory = (selectedCategory) => {
         .then((foundPosts) => resolve(foundPosts))
         .catch(() => reject('No post results found'));
     })
-}
+};
 
 module.exports.addCategory = (categoryData) => {
     return new Promise((resolve, reject) => {
@@ -144,7 +144,7 @@ module.exports.addCategory = (categoryData) => {
         .then((newCategory) => resolve(newCategory))
         .catch(() => reject('Unable to create category'));
     })
-}
+};
 
 module.exports.deleteCategoryById = (id) => {
     return new Promise((resolve, reject) => {
@@ -156,7 +156,7 @@ module.exports.deleteCategoryById = (id) => {
         .then(() => resolve())
         .catch(() => reject('Error, category not deleted'));
     })
-}
+};
 
 module.exports.deletePostById = (id) => {
     return new Promise((resolve, reject) => {
@@ -168,4 +168,4 @@ module.exports.deletePostById = (id) => {
         .then(() => resolve())
         .catch(() => reject('Error, post not deleted'));
     })
-}
+};
