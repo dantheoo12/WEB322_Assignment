@@ -98,17 +98,20 @@ module.exports.getCategories = () => {
 
 module.exports.addPost = (postData) => {
     return new Promise((resolve, reject) => {
-        postData.published = (postData.published) ? true : false; // set published attribute
-        postData.postDate = new Date();
         for (attribute in postData) {
             if (attribute === "") postData.attribute = null;
         }
         Post.create({
             body: postData.body,
             title: postData.title,
-            featureImage: postData.featureImage
+            featureImage: postData.featureImage,
+            postDate: new Date(),
+            published: (postData.published) ? true : false,
+            category: postData.category
         })
-        .then((newPost) => resolve(newPost))
+        .then((newPost) => {
+            resolve(newPost);
+        })
         .catch(() => reject('Unable to create post'));
     })
 }
@@ -128,7 +131,7 @@ module.exports.getPublishedPostsByCategory = (selectedCategory) => {
 
 module.exports.addCategory = (categoryData) => {
     return new Promise((resolve, reject) => {
-        for (attribute in postData) {
+        for (attribute in categoryData) {
             if (attribute === "") categoryData.attribute = null;
         }
         Category.create({
