@@ -103,7 +103,7 @@ module.exports.getCategories = () => {
 module.exports.addPost = (postData) => {
     return new Promise((resolve, reject) => {
         for (attribute in postData) {
-            if (attribute === "") postData.attribute = null;
+            if (postData[attribute] === "") postData[attribute] = null;
         }
         Post.create({
             body: postData.body,
@@ -135,8 +135,8 @@ module.exports.getPublishedPostsByCategory = (selectedCategory) => {
 
 module.exports.addCategory = (categoryData) => {
     return new Promise((resolve, reject) => {
-        for (attribute in categoryData) {
-            if (attribute === "") categoryData.attribute = null;
+        for (categoryData[attribute] in categoryData) {
+            if (categoryData[attribute] === "") categoryData[attribute] = null;
         }
         Category.create({
             category: categoryData.category
