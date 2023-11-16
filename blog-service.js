@@ -45,7 +45,7 @@ module.exports.getPostsByCategory = (selectedCategory) => {
     return new Promise ((resolve, reject) => {
         Post.findAll({
             where: {
-                category: selectedCategory
+                category: selectedCategory,
             }
         })
         .then((foundPosts) => resolve(foundPosts))
@@ -81,11 +81,15 @@ module.exports.getPostsByMinDate = (minDateStr) => {
 
 module.exports.getPostById = (id) => {
     return new Promise((resolve, reject) => {
-        Post.findAll()
-        .then((allPosts) => {
-            resolve(allPosts.filter(post => post.id == id))
+        Post.findOne({
+            where: {
+                id: id
+            }
         })
-        reject('No post results found');
+        .then((post) => {
+            resolve(post);
+        })
+        .catch(() => reject('No post results found'));
     })
 }
 
@@ -124,7 +128,7 @@ module.exports.getPublishedPostsByCategory = (selectedCategory) => {
                 category: selectedCategory
             }
         })
-        .then(() => resolve(foundPosts))
+        .then((foundPosts) => resolve(foundPosts))
         .catch(() => reject('No post results found'));
     })
 }
