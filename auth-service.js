@@ -32,7 +32,7 @@ module.exports.initialize = function () {
 module.exports.registerUser = (userData) => {
     return new Promise((resolve, reject) => {
         if (userData.password != userData.password2) {
-            reject({message: "Passwords do not match"});
+            reject("Passwords do not match");
         }
         let newUser = new User(userData);
         newUser.save().then(() => {
@@ -40,10 +40,10 @@ module.exports.registerUser = (userData) => {
         })
         .catch((err) => {
             if (err.code == 11000) {
-                reject({message: "Username already taken"});
+                reject( "Username already taken");
             }
             else {
-                reject({message: `There was an error creating the user: ${err}`});
+                reject(`There was an error creating the user: ${err}`);
             }
         })
     })
@@ -54,14 +54,14 @@ module.exports.checkUser = (userData) => {
         User.find({userName: userData.userName}).exec()
         .then((foundUsers) => {
             if (foundUsers.length == 0) { // no users found
-                reject({message: `Unable to find user: ${userData.userName}`});
+                reject(`Unable to find user: ${userData.userName}`);
             }
             else if (foundUsers[0].password != userData.password) { // user found but incorrect password
-                reject({message: `Incorrect Password for user: ${userData.userName}`});
+                reject(`Incorrect Password for user: ${userData.userName}`);
             }
             else { // user found and password is correct
                 foundUsers[0].loginHistory.push({dateTime: (new Date()).toString(), userAgent: userData.userAgent});
-                User.updateOne( // update user's login histor
+                User.updateOne( // update user's login history
                     {userName: foundUsers[0].userName},
                     {$set: {loginHistory: foundUsers[0].loginHistory}}
                 ).exec()    
@@ -69,12 +69,12 @@ module.exports.checkUser = (userData) => {
                     resolve(foundUsers[0]);
                 })
                 .catch((err) => {
-                    reject({message: `There was an error verifying the user: ${err}`});
+                    reject(`There was an error verifying the user: ${err}`);
                 })
             }
         })
         .catch((err) => {
-            reject({message: `Unable to find user: ${userData.userName}`});
+            reject(`Unable to find user: ${userData.userName}`);
         })
     })
 }

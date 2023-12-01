@@ -43,6 +43,14 @@ app.use(function(req,res,next){
     next();
 });
 app.use(express.urlencoded({extended: true}));
+app.use(
+    clientSessions({
+      cookieName: 'session', 
+      secret: 'o6LjQ5EVNC28ZgK64hDELM18ScpFQr', 
+      duration: 5 * 60 * 1000, 
+      activeDuration: 2 * 1000 * 60, 
+    })
+  );
 app.use(function(req, res, next) {
     res.locals.session = req.session;
     next();
@@ -290,6 +298,49 @@ app.get('/posts/delete/:id', ensureLogin, (req, res) => {
     })
     .catch(() => res.status(500, "Unable to Remove post / Post not found"))
 });
+
+app.get('/login', (req, res) => {
+    res.render('login');
+})
+
+app.get('/register', (req, res) => {
+    res.render('register');
+})
+
+app.post('/register', (req, res) => {
+    authData.registerUser(req.body)
+    .then(() => {
+        res.render('register', {successMessage: "User created"});
+    })
+    .catch((err) => {
+        res.render('register', {errorMessage: err, userName: req.body.userName});
+    })
+})
+
+app.post('/login', (req, res) => {
+    req.body.userAgent = req.get('User-Agent');
+    authData.checkUser(req.body).then((user) => {
+            req.session.user = {
+                userName: user.userName,
+                email: user.email,
+                loginHistory: user.loginHistory
+            }
+        res.redirect('/posts');
+    })
+    .catch((err) => {
+        res.render('login', {errorMessage: err, userName: req.body.userName});
+    })
+    
+})
+
+app.get('/logout', (req, res) => {
+    req.session.reset();
+    res.redirect('/');
+})
+
+app.get('/userHistory', ensureLogin, (req, res) => {
+    res.render('userHistory');
+})
 
 app.get('*', (req, res) => {
     res.render('error404');
