@@ -19,6 +19,8 @@ const blog_service = require("./blog-service");
 const upload = multer();
 const exphbs = require('express-handlebars');
 const stripJs = require('strip-js');
+const authData = require('./auth-service');
+const clientSessions = require('client-sessions');
 
 // set port
 const HTTP_PORT = process.env.PORT || 8080;
@@ -41,7 +43,18 @@ app.use(function(req,res,next){
     next();
 });
 app.use(express.urlencoded({extended: true}));
+app.use(function(req, res, next) {
+    res.locals.session = req.session;
+    next();
+});
 
+function ensureLogin(req, res, next) {
+    if (!req.session.user) {
+      res.redirect('/login');
+    } else {
+      next();
+    }
+  }
 
 // add handlebars engines and helpers
 app.engine('.hbs', exphbs.engine({
@@ -178,7 +191,7 @@ app.get('/blog/:id', async (req, res) => {
     res.render("blog", {data: viewData})
 });
 
-app.get('/posts', (req, res) => {
+app.get('/posts', ensureLogin, (req, res) => {
     const category = req.query.category;
     const minDate = req.query.minDate;
     if (category) {
@@ -204,13 +217,13 @@ app.get('/posts', (req, res) => {
     }
 });
 
-app.get('/posts/add', (req, res) => {
+app.get('/posts/add', ensureLogin, (req, res) => {
     blog_service.getCategories()
     .then((data) => res.render('addPost', {categories: data}))
     .catch(() => res.render('addPost', {categories: []}));
 });
 
-app.post('/posts/add', (req, res) => {
+app.post('/posts/add', ensureLogin, (req, res) => {
     let streamUpload = (req) => {
         return new Promise((resolve, reject) => {
             let stream = cloudinary.uploader.upload_stream(
@@ -238,12 +251,12 @@ app.post('/posts/add', (req, res) => {
             res.redirect('/posts')}); // redirect to posts
 })});
 
-app.get('/posts/:value', (req, res) => {
+app.get('/posts/:value', ensureLogin, (req, res) => {
     blog_service.getPostById(Number(req.params.value)).then((data) => res.send(data))
     .catch((err) => {return {message: err}});
 });
 
-app.get('/categories', (req, res) => {
+app.get('/categories', ensureLogin, (req, res) => {
     blog_service.getCategories().then((data) => {
         if (data.length > 0) res.render('categories', {categories:data});
         else res.render('categories', {message: 'No category results found'});
@@ -251,18 +264,18 @@ app.get('/categories', (req, res) => {
     .catch((err) => res.render('categories', {message:err}));
 });
 
-app.get('/categories/add', (req, res) => {
+app.get('/categories/add', ensureLogin, (req, res) => {
     res.render('addCategory');
 });
 
-app.post('/categories/add', (req, res) => {
+app.post('/categories/add', ensureLogin, (req, res) => {
     blog_service.addCategory(req.body)
     .then(() => {
         console.log("New category added")
         res.redirect('/categories')}); // redirect to posts
 });
 
-app.get('/categories/delete/:id', (req, res) => {
+app.get('/categories/delete/:id', ensureLogin, (req, res) => {
     blog_service.deleteCategoryById(req.params.id)
     .then(() => {
         res.redirect('/categories')
@@ -270,7 +283,7 @@ app.get('/categories/delete/:id', (req, res) => {
     .catch(() => res.status(500, "Unable to Remove Category / Category not found"))
 });
 
-app.get('/posts/delete/:id', (req, res) => {
+app.get('/posts/delete/:id', ensureLogin, (req, res) => {
     blog_service.deletePostById(req.params.id)
     .then(() => {
         res.redirect('/posts')
@@ -283,11 +296,12 @@ app.get('*', (req, res) => {
 });
 
 // start server if initialize is successful
-try{
-    blog_service.initialize().then(() => {
-        app.listen(HTTP_PORT, () => { console.log(`Express http server listening on port ${HTTP_PORT}`) });
-    })
-}
-catch {
-    throw new Error("Could not initialize data set");
-};
+blog_service.initialize()
+.then(authData.initialize)
+.then(function(){
+    app.listen(HTTP_PORT, function(){
+        console.log("app listening on: " + HTTP_PORT)
+    });
+}).catch(function(err){
+    console.log("unable to start server: " + err);
+});
